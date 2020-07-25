@@ -115,37 +115,60 @@ pub trait Ini {
     /// many different ini files could be parsed by calling this
     /// method repeatidly.
     fn parse(&mut self, filename: Option<&str>, ini: &str) -> Result<(), Self::Err> {
-        let mut section = None;
+        self.parse_with_section(None, filename, ini).map(|_| ())
+    }
 
+    /// Like parse() but allows you to input the starting section as well as returning the section
+    /// the input data leaves on.
+    ///
+    /// This allows keeping track of the section for recursive parsing.
+    fn parse_with_section<'a>(
+        &mut self,
+        mut section: Option<&'a str>,
+        filename: Option<&str>,
+        ini: &'a str,
+    ) -> Result<Option<&'a str>, Self::Err> {
         for (line_number, line) in ini.lines().enumerate() {
-            let line = line.trim();
-            let kind;
-            let line_number = line_number + 1;
-
-            if line.is_empty() || line.starts_with('#') {
-                continue;
-            }
-
-            if line.starts_with('[') && line.ends_with(']') {
-                let header = &line[1..line.len() - 1];
-                kind = CallbackKind::Section(header);
-                section = Some(header);
-            } else {
-                let pair = split_pair(line);
-                kind = CallbackKind::Directive(section, pair.0, pair.1)
-            }
-
-            let data = Callback {
-                filename,
-                line,
-                line_number,
-                kind,
-            };
-
-            self.callback(data)?;
+            section = self.parse_line(filename, line, line_number, section)?
         }
 
-        Ok(())
+        Ok(section)
+    }
+
+    /// Parses a single line of an ini str.
+    fn parse_line<'a>(
+        &mut self,
+        filename: Option<&str>,
+        line: &'a str,
+        line_number: usize,
+        mut section: Option<&'a str>,
+    ) -> Result<Option<&'a str>, Self::Err> {
+        let line = line.trim();
+        let kind;
+        let line_number = line_number + 1;
+
+        if line.is_empty() || line.starts_with('#') {
+            return Ok(section);
+        }
+
+        if line.starts_with('[') && line.ends_with(']') {
+            let header = &line[1..line.len() - 1];
+            kind = CallbackKind::Section(header);
+            section = Some(header);
+        } else {
+            let pair = split_pair(line);
+            kind = CallbackKind::Directive(section, pair.0, pair.1)
+        }
+
+        let data = Callback {
+            filename,
+            line,
+            line_number,
+            kind,
+        };
+
+        self.callback(data)?;
+        Ok(section)
     }
 }
 
@@ -167,17 +190,24 @@ mod tests {
         cake: bool,
         amount: u32,
         lie: bool,
+        include_value: bool,
     }
 
     impl Ini for Config {
         type Err = String;
 
         fn callback(&mut self, cb: Callback) -> Result<(), Self::Err> {
+            let include = "include_value";
+
             match cb.kind {
                 CallbackKind::Section(section) => assert_eq!(section, "nom"),
                 CallbackKind::Directive(section, key, value) => {
                     assert_eq!(section, Some("nom"));
                     match key {
+                        "include" => {
+                            self.parse_with_section(section, cb.filename, include)?;
+                        }
+                        "include_value" => self.include_value = true,
                         "cake" => self.cake = true,
                         "amount" => self.amount = value.unwrap().parse().unwrap(),
                         "lie" => self.lie = value.unwrap().parse().unwrap(),
@@ -205,12 +235,14 @@ mod tests {
         [nom]
         cake
         amount = 23
+        include
         lie = true
         #comment";
         let config: Config = ini.parse().unwrap();
         assert_eq!(config.cake, true);
         assert_eq!(config.amount, 23);
         assert_eq!(config.lie, true);
+        assert_eq!(config.include_value, true);
     }
 
     #[test]
