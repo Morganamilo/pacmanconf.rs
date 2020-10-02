@@ -238,8 +238,6 @@ impl Config {
                 "SigLevel" => self.sig_level.push(value.into()),
                 "LocalFileSigLevel" => self.local_file_sig_level.push(value.into()),
                 "RemoteFileSigLevel" => self.remote_file_sig_level.push(value.into()),
-                "UseSyslog" => self.use_syslog = true,
-                "Color" => self.color = true,
                 "UseDelta" => {
                     self.use_delta = value.parse().map_err(|_| {
                         ErrorKind::InvalidValue(section.into(), key.into(), value.into())
@@ -249,6 +247,8 @@ impl Config {
             };
         } else {
             match key {
+                "Color" => self.color = true,
+                "UseSyslog" => self.use_syslog = true,
                 "TotalDownload" => self.total_download = true,
                 "CheckSpace" => self.check_space = true,
                 "VerbosePkgLists" => self.verbose_pkg_lists = true,
@@ -298,8 +298,8 @@ mod tests {
             local_file_sig_level: vec!["PackageOptional".into(), "PackageTrustedOnly".into()],
             remote_file_sig_level: vec!["PackageRequired".into(), "PackageTrustedOnly".into()],
             use_syslog: false,
-            color: false,
-            use_delta: 0.7,
+            color: true,
+            use_delta: 0.0,
             total_download: true,
             check_space: true,
             verbose_pkg_lists: true,
@@ -398,6 +398,10 @@ mod tests {
             ],
         };
 
+        assert_eq!(
+            pacman_conf.repos,
+            Config::from_file("tests/pacman.conf").unwrap().repos
+        );
         assert_eq!(pacman_conf, Config::from_file("tests/pacman.conf").unwrap());
     }
 
