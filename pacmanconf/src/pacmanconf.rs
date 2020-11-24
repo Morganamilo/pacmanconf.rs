@@ -170,6 +170,48 @@ impl Config {
         Ok(config)
     }
 
+    /// Expand the pacman_conf
+    ///
+    /// This generates a pacman.conf with all the Includes expanded
+    ///
+    /// - bin: The location of the `pacman-conf` binary. Default is
+    /// `pacman-conf` in PATH.
+    /// - config: Location of config file to parse: Default is
+    /// pacman's compiled in default (usually /etc/pacman.conf).
+    /// root_dir: The RootDir: Default is pacman's compiled in
+    /// default (usually /).
+    pub fn expand_with_opts(
+        bin: Option<&str>,
+        config: Option<&str>,
+        root_dir: Option<&str>,
+    ) -> Result<String, Error> {
+        let mut cmd = Command::new(bin.unwrap_or("pacman-conf"));
+        if let Some(root) = root_dir {
+            cmd.args(&["--root", root]);
+        }
+        if let Some(config) = config {
+            cmd.args(&["--config", config]);
+        }
+
+        let output = cmd.output()?;
+
+        if !output.status.success() {
+            Err(ErrorKind::Runtime(
+                String::from_utf8(output.stderr).map_err(|e| e.utf8_error())?,
+            ))?;
+        }
+
+        let out = str::from_utf8(&output.stdout)?.trim().to_string();
+        Ok(out)
+    }
+
+    /// Expand the pacman_conf
+    ///
+    /// This generates a pacman.conf with all the Includes expanded
+    pub fn expand_from_file(config: &str) -> Result<String, Error> {
+        Self::expand_with_opts(None, Some(config), None)
+    }
+
     fn handle_section(&mut self, section: &str) {
         if section != "options" {
             self.repos.push(Repository {
