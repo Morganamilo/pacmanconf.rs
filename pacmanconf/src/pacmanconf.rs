@@ -73,6 +73,8 @@ pub struct Config {
     pub verbose_pkg_lists: bool,
     /// DisableDownloadTimeout
     pub disable_download_timeout: bool,
+    /// ParallelDownloads
+    pub parallel_downloads: u64,
     /// ILoveCandy
     pub chomp: bool,
     /// [repo_name]
@@ -243,6 +245,12 @@ impl Config {
                         ErrorKind::InvalidValue(section.into(), key.into(), value.into())
                     })?
                 }
+                "ParallelDownloads" => {
+                    self.parallel_downloads = value.parse().map_err(|_| {
+                        ErrorKind::InvalidValue(section.into(), key.into(), value.into())
+                    })?
+                }
+
                 _ => (),
             };
         } else {
