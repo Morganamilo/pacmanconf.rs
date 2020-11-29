@@ -1,6 +1,6 @@
 [package]
 name = "pacmanconf"
-version = "0.1.2"
+version = "0.2.0"
 authors = ["morganamilo <morganamilo@gmail.com>"]
 edition = "2018"
 description = "A pacman-conf wrapper library for parsing pacman config files"
