@@ -44,7 +44,7 @@ pub struct Config {
     /// IgnoreGroup
     pub ignore_group: Vec<String>,
     /// Architecture
-    pub architecture: String,
+    pub architecture: Vec<String>,
     /// XferCommand
     pub xfer_command: String,
     /// NoUpgrade
@@ -274,7 +274,7 @@ impl Config {
                 "HoldPkg" => self.hold_pkg.push(value.into()),
                 "IgnorePkg" => self.ignore_pkg.push(value.into()),
                 "IgnoreGroup" => self.ignore_group.push(value.into()),
-                "Architecture" => self.architecture = value.into(),
+                "Architecture" => self.architecture.push(value.into()),
                 "XferCommand" => self.xfer_command = value.into(),
                 "NoUpgrade" => self.no_upgrade.push(value.into()),
                 "NoExtract" => self.no_extract.push(value.into()),
@@ -334,7 +334,7 @@ mod tests {
                 "brackets-bin".into(),
             ],
             ignore_group: vec![],
-            architecture: "x86_64".into(),
+            architecture: vec!["x86_64".into()],
             xfer_command: "".into(),
             no_upgrade: vec![],
             no_extract: vec![],
@@ -350,7 +350,8 @@ mod tests {
             use_syslog: false,
             color: true,
             use_delta: 0.0,
-            total_download: true,
+            total_download: false,
+            parallel_downloads: 1,
             check_space: true,
             verbose_pkg_lists: true,
             disable_download_timeout: false,
