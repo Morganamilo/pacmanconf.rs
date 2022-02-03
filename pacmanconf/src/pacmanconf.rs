@@ -1,4 +1,5 @@
 use cini::{Callback, CallbackKind, Ini};
+use std::path::Path;
 use std::process::Command;
 use std::str;
 use std::str::FromStr;
@@ -117,7 +118,7 @@ impl Config {
     /// The default pacman.conf location is a compile time option of
     /// pacman but is usually located at /etc/pacman.conf.
     pub fn new() -> Result<Config, Error> {
-        Self::with_opts(None, None, None)
+        Self::with_opts::<&str>(None, None, None)
     }
 
     /// Creates a new Config using pacman's compiled in defaults.
@@ -132,7 +133,10 @@ impl Config {
     }
 
     /// Create a new Config from a file.
-    pub fn from_file(config: &str) -> Result<Config, Error> {
+    pub fn from_file<P>(config: P) -> Result<Config, Error>
+    where
+        P: AsRef<Path>,
+    {
         Self::with_opts(None, Some(config), None)
     }
 
@@ -144,17 +148,25 @@ impl Config {
     /// pacman's compiled in default (usually /etc/pacman.conf).
     /// root_dir: The RootDir: Default is pacman's compiled in
     /// default (usually /).
-    pub fn with_opts(
-        bin: Option<&str>,
-        config: Option<&str>,
-        root_dir: Option<&str>,
-    ) -> Result<Config, Error> {
-        let mut cmd = Command::new(bin.unwrap_or("pacman-conf"));
+    pub fn with_opts<P>(
+        bin: Option<P>,
+        config: Option<P>,
+        root_dir: Option<P>,
+    ) -> Result<Config, Error>
+    where
+        P: AsRef<Path>,
+    {
+        let binary = match bin {
+            None => Path::new("pacman-conf"),
+            Some(ref p) => p.as_ref(),
+        };
+        let mut cmd = Command::new(binary);
+
         if let Some(root) = root_dir {
-            cmd.args(&["--root", root]);
+            cmd.arg("--root").arg(root.as_ref());
         }
         if let Some(config) = config {
-            cmd.args(&["--config", config]);
+            cmd.arg("--config").arg(config.as_ref());
         }
 
         let output = cmd.output()?;
@@ -180,17 +192,25 @@ impl Config {
     /// pacman's compiled in default (usually /etc/pacman.conf).
     /// root_dir: The RootDir: Default is pacman's compiled in
     /// default (usually /).
-    pub fn expand_with_opts(
-        bin: Option<&str>,
-        config: Option<&str>,
-        root_dir: Option<&str>,
-    ) -> Result<String, Error> {
-        let mut cmd = Command::new(bin.unwrap_or("pacman-conf"));
+    pub fn expand_with_opts<P>(
+        bin: Option<P>,
+        config: Option<P>,
+        root_dir: Option<P>,
+    ) -> Result<String, Error>
+    where
+        P: AsRef<Path>,
+    {
+        let binary = match bin {
+            None => Path::new("pacman-conf"),
+            Some(ref p) => p.as_ref(),
+        };
+        let mut cmd = Command::new(binary);
+
         if let Some(root) = root_dir {
-            cmd.args(&["--root", root]);
+            cmd.arg("--root").arg(root.as_ref());
         }
         if let Some(config) = config {
-            cmd.args(&["--config", config]);
+            cmd.arg("--config").arg(config.as_ref());
         }
 
         let output = cmd.output()?;
@@ -208,7 +228,10 @@ impl Config {
     /// Expand the pacman_conf
     ///
     /// This generates a pacman.conf with all the Includes expanded
-    pub fn expand_from_file(config: &str) -> Result<String, Error> {
+    pub fn expand_from_file<P>(config: P) -> Result<String, Error>
+    where
+        P: AsRef<Path>,
+    {
         Self::expand_with_opts(None, Some(config), None)
     }
 
@@ -460,7 +483,7 @@ mod tests {
     fn test_success() {
         Config::new().unwrap();
         Config::empty().unwrap();
-        Config::with_opts(None, None, None).unwrap();
+        Config::with_opts::<&str>(None, None, None).unwrap();
         Config::with_opts(None, Some("tests/pacman.conf"), None).unwrap();
         Config::from_file("tests/pacman.conf").unwrap();
     }
