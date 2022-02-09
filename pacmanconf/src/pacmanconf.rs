@@ -324,6 +324,7 @@ impl Config {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::Path;
 
     #[test]
     fn eq_pacman_conf() {
@@ -470,6 +471,7 @@ mod tests {
         Config::empty().unwrap();
         Config::with_opts::<&OsStr>(None, None, None).unwrap();
         Config::with_opts(None, Some("tests/pacman.conf"), None).unwrap();
+        Config::with_opts(None, Some(Path::new("tests/pacman.conf")), None).unwrap();
         Config::from_file("tests/pacman.conf").unwrap();
     }
 
