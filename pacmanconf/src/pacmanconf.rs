@@ -173,7 +173,7 @@ impl Config {
         let cmd = bin
             .as_ref()
             .map(|t| t.as_ref())
-            .unwrap_or(OsStr::new("pacman-conf"));
+            .unwrap_or_else(|| OsStr::new("pacman-conf"));
         let mut cmd = Command::new(cmd);
         if let Some(root) = root_dir {
             cmd.arg("--root").arg(root);
@@ -185,9 +185,10 @@ impl Config {
         let output = cmd.output()?;
 
         if !output.status.success() {
-            Err(ErrorKind::Runtime(
+            return Err(ErrorKind::Runtime(
                 String::from_utf8(output.stderr).map_err(|e| e.utf8_error())?,
-            ))?;
+            )
+            .into());
         }
 
         let mut str = String::from_utf8(output.stdout).map_err(|e| e.utf8_error())?;
