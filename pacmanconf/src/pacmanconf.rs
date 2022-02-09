@@ -1,7 +1,7 @@
 use cini::{Callback, CallbackKind, Ini};
-use std::process::Command;
 use std::str;
 use std::str::FromStr;
+use std::{ffi::OsStr, process::Command};
 
 use crate::error::{Error, ErrorKind, ErrorLine};
 
@@ -117,7 +117,7 @@ impl Config {
     /// The default pacman.conf location is a compile time option of
     /// pacman but is usually located at /etc/pacman.conf.
     pub fn new() -> Result<Config, Error> {
-        Self::with_opts(None, None, None)
+        Self::with_opts::<&OsStr>(None, None, None)
     }
 
     /// Creates a new Config using pacman's compiled in defaults.
@@ -132,7 +132,7 @@ impl Config {
     }
 
     /// Create a new Config from a file.
-    pub fn from_file(config: &str) -> Result<Config, Error> {
+    pub fn from_file<T: AsRef<OsStr>>(config: T) -> Result<Config, Error> {
         Self::with_opts(None, Some(config), None)
     }
 
@@ -144,17 +144,21 @@ impl Config {
     /// pacman's compiled in default (usually /etc/pacman.conf).
     /// root_dir: The RootDir: Default is pacman's compiled in
     /// default (usually /).
-    pub fn with_opts(
-        bin: Option<&str>,
-        config: Option<&str>,
-        root_dir: Option<&str>,
+    pub fn with_opts<T: AsRef<OsStr>>(
+        bin: Option<T>,
+        config: Option<T>,
+        root_dir: Option<T>,
     ) -> Result<Config, Error> {
-        let mut cmd = Command::new(bin.unwrap_or("pacman-conf"));
+        let cmd = bin
+            .as_ref()
+            .map(|t| t.as_ref())
+            .unwrap_or(OsStr::new("pacman-conf"));
+        let mut cmd = Command::new(cmd);
         if let Some(root) = root_dir {
-            cmd.args(&["--root", root]);
+            cmd.arg("--root").arg(root);
         }
         if let Some(config) = config {
-            cmd.args(&["--config", config]);
+            cmd.arg("--config").arg(config);
         }
 
         let output = cmd.output()?;
@@ -180,17 +184,21 @@ impl Config {
     /// pacman's compiled in default (usually /etc/pacman.conf).
     /// root_dir: The RootDir: Default is pacman's compiled in
     /// default (usually /).
-    pub fn expand_with_opts(
-        bin: Option<&str>,
-        config: Option<&str>,
-        root_dir: Option<&str>,
+    pub fn expand_with_opts<T: AsRef<OsStr>>(
+        bin: Option<T>,
+        config: Option<T>,
+        root_dir: Option<T>,
     ) -> Result<String, Error> {
-        let mut cmd = Command::new(bin.unwrap_or("pacman-conf"));
+        let cmd = bin
+            .as_ref()
+            .map(|t| t.as_ref())
+            .unwrap_or(OsStr::new("pacman-conf"));
+        let mut cmd = Command::new(cmd);
         if let Some(root) = root_dir {
-            cmd.args(&["--root", root]);
+            cmd.arg("--root").arg(root);
         }
         if let Some(config) = config {
-            cmd.args(&["--config", config]);
+            cmd.arg("--config").arg(config);
         }
 
         let output = cmd.output()?;
@@ -208,7 +216,7 @@ impl Config {
     /// Expand the pacman_conf
     ///
     /// This generates a pacman.conf with all the Includes expanded
-    pub fn expand_from_file(config: &str) -> Result<String, Error> {
+    pub fn expand_from_file<T: AsRef<OsStr>>(config: T) -> Result<String, Error> {
         Self::expand_with_opts(None, Some(config), None)
     }
 
@@ -460,7 +468,7 @@ mod tests {
     fn test_success() {
         Config::new().unwrap();
         Config::empty().unwrap();
-        Config::with_opts(None, None, None).unwrap();
+        Config::with_opts::<&OsStr>(None, None, None).unwrap();
         Config::with_opts(None, Some("tests/pacman.conf"), None).unwrap();
         Config::from_file("tests/pacman.conf").unwrap();
     }
