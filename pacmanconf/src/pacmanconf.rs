@@ -149,28 +149,9 @@ impl Config {
         config: Option<T>,
         root_dir: Option<T>,
     ) -> Result<Config, Error> {
-        let cmd = bin
-            .as_ref()
-            .map(|t| t.as_ref())
-            .unwrap_or(OsStr::new("pacman-conf"));
-        let mut cmd = Command::new(cmd);
-        if let Some(root) = root_dir {
-            cmd.arg("--root").arg(root);
-        }
-        if let Some(config) = config {
-            cmd.arg("--config").arg(config);
-        }
-
-        let output = cmd.output()?;
-
-        if !output.status.success() {
-            Err(ErrorKind::Runtime(
-                String::from_utf8(output.stderr).map_err(|e| e.utf8_error())?,
-            ))?;
-        }
-
+        let str = Self::expand_with_opts(bin, config, root_dir)?;
         let mut config = Config::default();
-        config.parse_str(str::from_utf8(&output.stdout)?)?;
+        config.parse_str(&str)?;
         Ok(config)
     }
 
@@ -209,8 +190,11 @@ impl Config {
             ))?;
         }
 
-        let out = str::from_utf8(&output.stdout)?.trim().to_string();
-        Ok(out)
+        let mut str = String::from_utf8(output.stdout).map_err(|e| e.utf8_error())?;
+        if str.ends_with('\n') {
+            str.pop().unwrap();
+        }
+        Ok(str)
     }
 
     /// Expand the pacman_conf
