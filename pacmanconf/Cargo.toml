@@ -1,6 +1,6 @@
 [package]
 name = "pacmanconf"
-version = "1.0.0"
+version = "2.0.0"
 authors = ["morganamilo <morganamilo@gmail.com>"]
 edition = "2018"
 description = "A pacman-conf wrapper library for parsing pacman config files"
@@ -12,4 +12,4 @@ keywords = ["pacman", "conf", "pacman-conf", "arch", "archlinux"]
 categories = ["parser-implementations"]
 
 [dependencies]
-cini = "0.1"
+cini = "1.0.0"
