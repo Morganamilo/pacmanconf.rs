@@ -14,7 +14,9 @@
 
 #![warn(missing_docs)]
 mod error;
+mod options;
 mod pacmanconf;
 
 pub use crate::error::*;
+pub use crate::options::*;
 pub use crate::pacmanconf::*;

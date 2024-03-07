@@ -81,6 +81,7 @@ pub struct Config {
     pub repos: Vec<Repository>,
 }
 
+#[doc(hidden)]
 impl Ini for Config {
     type Err = Error;
 
@@ -132,6 +133,7 @@ impl Config {
     }
 
     /// Create a new Config from a file.
+    #[doc(hidden)]
     pub fn from_file<T: AsRef<OsStr>>(config: T) -> Result<Config, Error> {
         Self::with_opts(None, Some(config), None)
     }
@@ -144,6 +146,7 @@ impl Config {
     /// pacman's compiled in default (usually /etc/pacman.conf).
     /// root_dir: The RootDir: Default is pacman's compiled in
     /// default (usually /).
+    #[doc(hidden)]
     pub fn with_opts<T: AsRef<OsStr>>(
         bin: Option<T>,
         config: Option<T>,
@@ -165,6 +168,7 @@ impl Config {
     /// pacman's compiled in default (usually /etc/pacman.conf).
     /// root_dir: The RootDir: Default is pacman's compiled in
     /// default (usually /).
+    #[doc(hidden)]
     pub fn expand_with_opts<T: AsRef<OsStr>>(
         bin: Option<T>,
         config: Option<T>,
@@ -201,6 +205,7 @@ impl Config {
     /// Expand the pacman_conf
     ///
     /// This generates a pacman.conf with all the Includes expanded
+    #[doc(hidden)]
     pub fn expand_from_file<T: AsRef<OsStr>>(config: T) -> Result<String, Error> {
         Self::expand_with_opts(None, Some(config), None)
     }
