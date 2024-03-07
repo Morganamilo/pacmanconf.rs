@@ -2,15 +2,25 @@
 //!
 //! pacmanconf is a simple parser for pacman config files.
 //!
-//! This parser parses pacman config files textually. It makes no
-//! attempt convert fields such as SigLevel or Usage into bitfields.
+//! ```
+//! use pacmanconf::Config;
 //!
-//! pacmanconf is a wrapper around the pacman-conf binary. Instead
-//! of fully parsing pacman.conf files, pacman-conf is used
-//! as an intermediate step to greatly simplify the parser logic.
+//! # fn main() {
+//! let config = Config::new().expect("failed to parse config");
 //!
-//! However this is more of an implementation detail and pacman-conf
-//! will be called automatically when parsing files.
+//! let config = Config::options()
+//!     .root_dir("/chroot")
+//!     .pacman_conf("tests/pacman.conf")
+//!     .read()
+//!     .expect("failed to parse config");
+//!
+//!     for repo in &config.repos {
+//!         println!("{}", repo.name);
+//!     }
+//! # }
+//! ```
+//!
+//! See [`Config`] and [`Options`] on how to use this library.
 
 #![warn(missing_docs)]
 mod error;

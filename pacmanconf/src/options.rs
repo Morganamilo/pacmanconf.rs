@@ -9,14 +9,16 @@ pub struct Options {
 }
 
 impl Config {
-    /// Creates a new empty Options instance.
+    /// Creates a new empty Options instance. This allows you to change parsing options prior to
+    /// parsing the config file.
     pub fn options() -> Options {
         Options::new()
     }
 }
 
 impl Options {
-    /// Creates a new empty Options instance.
+    /// Creates a new empty Options instance. This allows you to change parsing options prior to
+    /// parsing the config file.
     pub fn new() -> Self {
         Default::default()
     }
