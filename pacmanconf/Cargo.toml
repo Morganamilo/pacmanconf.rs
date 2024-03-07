@@ -1,7 +1,7 @@
 [package]
 name = "pacmanconf"
-version = "2.0.0"
-authors = ["morganamilo <morganamilo@gmail.com>"]
+version = "2.1.0"
+authors = ["morganamilo <morganamilo@archlinux.org>"]
 edition = "2018"
 description = "A pacman-conf wrapper library for parsing pacman config files"
 homepage = "http://github.com/Morganamilo/pacmanconf.rs/pacmanconf"

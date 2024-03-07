@@ -1,7 +1,7 @@
 [package]
 name = "cini"
 version = "1.0.0"
-authors = ["morganamilo <morganamilo@gmail.com>"]
+authors = ["morganamilo <morganamilo@archlinux.org>"]
 edition = "2018"
 description = "A small callback based library for parsing ini files"
 homepage = "http://github.com/Morganamilo/pacmanconf.rs/cini"
