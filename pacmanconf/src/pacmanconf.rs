@@ -77,7 +77,7 @@ pub struct Config {
     pub parallel_downloads: u64,
     /// ILoveCandy
     pub chomp: bool,
-    /// [repo_name]
+    /// \[repo_name\]
     pub repos: Vec<Repository>,
 }
 
