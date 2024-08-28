@@ -59,6 +59,8 @@ pub struct Config {
     pub local_file_sig_level: Vec<String>,
     /// RemoteFileSigLevel
     pub remote_file_sig_level: Vec<String>,
+    /// DownloadUser
+    pub download_user: Option<String>,
     /// UseSyslog
     pub use_syslog: bool,
     /// Color
@@ -75,6 +77,8 @@ pub struct Config {
     pub disable_download_timeout: bool,
     /// ParallelDownloads
     pub parallel_downloads: u64,
+    /// DisableSandbox
+    pub disable_sandbox: bool,
     /// ILoveCandy
     pub chomp: bool,
     /// \[repo_name\]
@@ -290,6 +294,7 @@ impl Config {
                         ErrorKind::InvalidValue(section.into(), key.into(), value.into())
                     })?
                 }
+                "DownloadUser" => self.download_user = Some(value.into()),
 
                 _ => (),
             };
@@ -302,6 +307,7 @@ impl Config {
                 "VerbosePkgLists" => self.verbose_pkg_lists = true,
                 "DisableDownloadTimeout" => self.disable_download_timeout = true,
                 "UseDelta" => self.use_delta = 0.7,
+                "DisableSandbox" => self.disable_sandbox = true,
                 "ILoveCandy" => self.chomp = true,
                 _ => (),
             };
@@ -346,6 +352,7 @@ mod tests {
             ],
             local_file_sig_level: vec!["PackageOptional".into(), "PackageTrustedOnly".into()],
             remote_file_sig_level: vec!["PackageRequired".into(), "PackageTrustedOnly".into()],
+            download_user: Some("foo".to_string()),
             use_syslog: false,
             color: true,
             use_delta: 0.0,
@@ -354,6 +361,7 @@ mod tests {
             check_space: true,
             verbose_pkg_lists: true,
             disable_download_timeout: false,
+            disable_sandbox: true,
             chomp: true,
             repos: vec![
                 Repository {
