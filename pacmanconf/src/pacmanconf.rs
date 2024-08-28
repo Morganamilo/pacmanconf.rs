@@ -9,6 +9,7 @@ use crate::error::{Error, ErrorKind, ErrorLine};
 ///
 /// See pacman.conf (5) for information on each field.
 #[derive(Clone, Debug, Default, PartialEq, PartialOrd)]
+#[non_exhaustive]
 pub struct Repository {
     /// Name
     pub name: String,
@@ -24,6 +25,7 @@ pub struct Repository {
 ///
 /// See pacman.conf (5) for information on each field.
 #[derive(Clone, Debug, Default, PartialEq, PartialOrd)]
+#[non_exhaustive]
 pub struct Config {
     /// RootDir
     pub root_dir: String,
