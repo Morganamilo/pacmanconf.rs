@@ -81,6 +81,10 @@ pub struct Config {
     pub parallel_downloads: u64,
     /// DisableSandbox
     pub disable_sandbox: bool,
+    /// DisableSandboxFilesystem
+    pub disable_sandbox_filesystem: bool,
+    /// DisableSandboxSyscalls
+    pub disable_sandbox_syscalls: bool,
     /// ILoveCandy
     pub chomp: bool,
     /// \[repo_name\]
@@ -310,6 +314,8 @@ impl Config {
                 "DisableDownloadTimeout" => self.disable_download_timeout = true,
                 "UseDelta" => self.use_delta = 0.7,
                 "DisableSandbox" => self.disable_sandbox = true,
+                "DisableSandboxFilesystem" => self.disable_sandbox_filesystem = true,
+                "DisableSandboxSyscalls" => self.disable_sandbox_syscalls = true,
                 "ILoveCandy" => self.chomp = true,
                 _ => (),
             };
@@ -364,6 +370,8 @@ mod tests {
             verbose_pkg_lists: true,
             disable_download_timeout: false,
             disable_sandbox: true,
+            disable_sandbox_filesystem: false,
+            disable_sandbox_syscalls: false,
             chomp: true,
             repos: vec![
                 Repository {
